@@ -43,6 +43,65 @@
         .rotate-y-180 {
             transform: rotateY(180deg);
         }
+        /* Style for the surprise coupons */
+        .coupon {
+            border-radius: 15px;
+            padding: 1.5rem;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            position: relative;
+            overflow: hidden;
+        }
+        .coupon:not(.redeemed):hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        /* Shake animation for the jar */
+        @keyframes shake {
+            0% { transform: translate(1px, 1px) rotate(0deg); }
+            10% { transform: translate(-1px, -2px) rotate(-1deg); }
+            20% { transform: translate(-3px, 0px) rotate(1deg); }
+            30% { transform: translate(3px, 2px) rotate(0deg); }
+            40% { transform: translate(1px, -1px) rotate(1deg); }
+            50% { transform: translate(-1px, 2px) rotate(-1deg); }
+            60% { transform: translate(-3px, 1px) rotate(0deg); }
+            70% { transform: translate(3px, 1px) rotate(-1deg); }
+            80% { transform: translate(-1px, -1px) rotate(1deg); }
+            90% { transform: translate(1px, 2px) rotate(0deg); }
+            100% { transform: translate(1px, -2px) rotate(-1deg); }
+        }
+        .shake-animation {
+            animation: shake 0.5s ease-in-out;
+        }
+        /* Stamp Animation */
+        @keyframes stamp {
+            0% { opacity: 0; transform: rotate(-12deg) scale(2); }
+            100% { opacity: 0.8; transform: rotate(-12deg) scale(1); }
+        }
+        .stamp-animation {
+            animation: stamp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+        /* Modal Animation */
+        @keyframes modalPop {
+            0% { opacity: 0; transform: scale(0.9); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+        .modal-content {
+            animation: modalPop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+        /* QR Code Fade In */
+        @keyframes qrFade {
+            0% { opacity: 0; transform: scale(0.8); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+        .qr-reveal {
+            animation: qrFade 0.5s ease-out forwards;
+        }
     </style>
 </head>
 <body class="bg-pink-50">
@@ -61,11 +120,15 @@
             // The passcode she needs to enter
             passcode: "112824",
 
+            // [IMPORTANT] PASTE YOUR SHEETDB API URL HERE
+            // Example: "https://sheetdb.io/api/v1/58f61be4dda40"
+            sheetDbUrl: "https://sheetdb.io/api/v1/py2kvajx66f1s", 
+
              // Texts
             loginTitle: "Entrance to Our World",
             loginPlaceholder: "Enter our special date (MMDDYY)",
             greeting: "Happy Anniversary, Kath!",
-            welcomeMsg: "Welcome to our special corner of the internet.",
+            welcomeMsg: "Welcome to a special corner of the internet.",
 
             // Letter Content
             letterTitle: "My Dearest Kath,",
@@ -116,7 +179,108 @@
                 }
             ],
 
-            // Photo Gallery
+            // Future Adventures List
+            futureAdventures: [
+                "Finally close the distance for good.",
+                "Go on our first real vacation together (Japan? Thailand?)",
+                "Cook a full meal together without burning anything.",
+                "Binge-watch an entire series in the same room.",
+                "Go to a concert.",
+                "Fall asleep and wake up next to each other."
+            ],
+            
+            // Surprises for the 'More Surprises' page
+            surprises: [
+                {
+                    title: "One Uninterrupted Movie Night",
+                    description: "We'll sync up a movie, turn off all other distractions, and just be 'together'.",
+                    details: "This coupon is valid for one movie of your choice. I promise to put my phone on DND, get the snacks ready (virtually or physically!), and not pause it every 5 minutes to explain the plot!"
+                },
+                {
+                    title: "Redeem for One 'Ask Me Anything'",
+                    description: "No holding back, ask me one thing you've always been curious about.",
+                    details: "A free pass to ask absolutely anything. No 'I can't tell you's allowed. Deep secrets, funny stories, or why I love you so much—everything is on the table."
+                },
+                {
+                    title: "Care Package on Demand",
+                    description: "Feeling down? Redeem this and I'll send your favorite snacks and a hoodie.",
+                    details: "Feeling a bit low or just missing me? Cash this in and I'll curate a box of your favorite snacks, maybe a hoodie of mine that smells like me, and a handwritten letter, shipped straight to your door."
+                },
+                {
+                    title: "Next Visit: I Cook For You",
+                    description: "I'll plan and cook a full, proper dinner for us. (No promises on taste!)",
+                    details: "I'm taking over the kitchen! You sit back, relax with a drink, and I'll whip up a special dinner just for you. Disclaimer: I might need a sous-chef for tasting!"
+                },
+                {
+                    title: "A 5-Minute 'Just Listen'",
+                    description: "Need to vent? I'll shut up and just listen to everything on your mind.",
+                    details: "Sometimes you just need to vent. I'll be your safe space. No advice (unless asked), no trying to 'fix' it, just pure listening and support for as long as you need."
+                },
+                {
+                    title: "Guilt-Free Shopping Pass",
+                    description: "Use this to buy anything you want! (Check out my treat)",
+                    details: "It's a mini shopping spree on me! Scan the code to access your shopping fund. Go add that thing you've been eyeing to your cart. You deserve it! (Note: This code expires after 15 hours)",
+                    secret: true,
+                    // We initialize this as null. It will be populated from SheetDB ON CLICK.
+                    qrCode: null 
+                }
+            ],
+
+            // Secret Notes for the new page
+            secretNotes: [
+                "Just a reminder: You are my absolute favorite person.",
+                "Can't wait until I can see your smile in person again instead of just on my screen.",
+                "P.S. I love you.",
+                "Remember that one time in Baguio? Still thinking about it.",
+                "You're stuck with me! (Lucky you!)",
+                "I'm so proud of everything you do.",
+                "Thinking of you. (Okay, I'm *always* thinking of you.)",
+                "1... 2... 3... Surpise! Just a random note to make you smile.",
+                "Counting down the seconds until our next call.",
+                "Even with all this distance, you've never felt closer to my heart.",
+                "You are worth every single mile between us.",
+                "My day is 100x better after talking to you.",
+                "I'd choose you, even in LDR, every single time.",
+                "Random thought: You're really, really cute.",
+                "One day, 'goodbye' will finally mean 'see you tonight'.",
+                "I'm saving up all my hugs for you.",
+                "Your voice is my favorite sound.",
+                "I love you more than all the data we use on video calls.",
+                "You're the first person I want to tell good news to.",
+                "And the only person I want to comfort me on bad days.",
+                "Thank you for being so patient with me and this distance.",
+                "I love you I love you I love you.",
+                "Just picturing your face. Yep, smiling like an idiot now.",
+                "Let's watch a movie 'together' soon.",
+                "You're my person. Simple as that.",
+                "I'm so glad I met you at that concert.",
+                "Our story is my favorite. Especially the spinning wheel part.",
+                "I miss you. A lot. Just in case you forgot.",
+                "Every day with you is my new favorite day.",
+                "I hope you're having a good day. You deserve it.",
+                "I'm so lucky to be your Cole.",
+                "Remembering your graduation day... I was so proud.",
+                "I love how our families know about us. It feels so right.",
+                "Let's go back to Baguio one day.",
+                "Soon, there will be no more 'see you laters'.",
+                "You make me a better person.",
+                "I love you to the airport and back (and then some).",
+                "Our future adventure list is getting long... let's start checking things off soon.",
+                "You're my best friend.",
+                "I just... really, really love you, Kath.",
+                "Someday, we'll have 'our' coffee shop to go to.",
+                "Until then, our virtual dates are pretty awesome.",
+                "You inspire me.",
+                "I love how we can be silly together.",
+                "And how we can have serious, deep talks.",
+                "There's no one else I'd rather be on this journey with.",
+                "This LDR is tough, but you are tougher. And our love is toughest.",
+                "Sending you a massive virtual hug right now.",
+                "Can't wait to hold your hand.",
+                "Just so you know, you're on my mind. Again."
+            ],
+
+            // Photo Gallery Images
             galleryImages: [
                 "https://placehold.co/600x400/pink/white?text=Concert+Meetup",
                 "https://placehold.co/400x600/red/white?text=Baguio+Trip",
@@ -124,6 +288,16 @@
                 "https://placehold.co/600x800/pink/white?text=Graduation+Day",
                 "https://placehold.co/800x600/red/white?text=Airport+Pickup",
                 "https://placehold.co/400x400/orange/white?text=Us+Always"
+            ],
+
+            // Photo Gallery Captions
+            galleryCaptions: [
+                "Our first ever meet-up! My heart was racing.",
+                "The beautiful view in Baguio... but I couldn't stop looking at you.",
+                "The day we made it official with a literal spin!",
+                "So proud of you on your graduation day.",
+                "Picking you up from the airport... one of my favorite feelings.",
+                "Just us being us. Can't wait for more of this."
             ]
         };
         // --- CONFIGURATION END ---
@@ -136,8 +310,137 @@
             Calendar: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>,
             Stars: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/></svg>,
             Image: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>,
-            Gift: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13"/><path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"/><path d="M7.5 8a2.5 2.5 0 0 1 0-5A4.8 8 0 0 1 12 8a4.8 8 0 0 1 4.5-5 2.5 2.5 0 0 1 0 5"/></svg>
+            Gift: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13"/><path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"/><path d="M7.5 8a2.5 2.5 0 0 1 0-5A4.8 8 0 0 1 12 8a4.8 8 0 0 1 4.5-5 2.5 2.5 0 0 1 0 5"/></svg>,
+            MapPin: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>,
+            Home: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>,
+            BookOpen: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>,
+            Jar: (props) => (
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+                    <path d="M5 3h14v3H5V3z" />
+                    <path d="M5 6h14v13a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6z" />
+                    <path d="M10 12h4" />
+                </svg>
+            )
         };
+
+        // --- CONFIRMATION MODAL COMPONENT ---
+        function ConfirmationModal({ isOpen, onClose, onConfirm, title, message }) {
+            if (!isOpen) return null;
+            return (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[80] p-4 fade-in">
+                    <div className="bg-white rounded-2xl p-6 max-w-sm w-full shadow-2xl transform scale-100 modal-content border-2 border-pink-100">
+                        <h3 className="text-xl font-bold text-pink-600 mb-2">{title}</h3>
+                        <p className="text-gray-600 mb-6">{message}</p>
+                        <div className="flex gap-3 justify-end">
+                            <button 
+                                onClick={onClose}
+                                className="px-4 py-2 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors font-medium"
+                            >
+                                Cancel
+                            </button>
+                            <button 
+                                onClick={onConfirm}
+                                className="px-4 py-2 bg-pink-500 hover:bg-pink-600 text-white rounded-lg transition-colors font-bold shadow-md"
+                            >
+                                Yes, Redeem it!
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        // --- COUPON DETAILS MODAL ---
+        function CouponDetailsModal({ isOpen, onClose, onRedeem, coupon, isRedeemed }) {
+            if (!isOpen || !coupon) return null;
+            
+            // Logic to handle secret coupons
+            const showContent = !coupon.secret || isRedeemed;
+            const displayDetails = showContent 
+                ? (coupon.details || coupon.description) 
+                : "This surprise is currently locked! Redeem this coupon to reveal the full details and instructions.";
+
+            // Button Logic
+            let buttonText = "Redeem Now";
+            let isButtonDisabled = false;
+            let buttonClass = "px-6 py-3 bg-pink-500 hover:bg-pink-600 text-white rounded-xl transition-all font-bold shadow-lg hover:shadow-pink-200 hover:-translate-y-0.5 flex items-center gap-2";
+
+            if (coupon.isChecking) {
+                buttonText = "Checking...";
+                isButtonDisabled = true;
+                buttonClass = "px-6 py-3 bg-pink-300 text-white rounded-xl font-bold cursor-wait flex items-center gap-2";
+            } else if (coupon.secret && !isRedeemed) {
+                if (coupon.linkAvailable === false) {
+                    buttonText = "Gift Not Ready Yet";
+                    isButtonDisabled = true;
+                    buttonClass = "px-6 py-3 bg-gray-300 text-gray-500 rounded-xl font-bold cursor-not-allowed flex items-center gap-2";
+                } else {
+                    buttonText = "Redeem to Unlock";
+                }
+            }
+
+            return (
+                <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-[70] p-4 fade-in backdrop-blur-sm">
+                    <div className="bg-white rounded-2xl p-8 max-w-md w-full shadow-2xl transform scale-100 modal-content border-2 border-pink-200 relative overflow-hidden">
+                        {/* Decorative background elements */}
+                        <div className="absolute top-0 right-0 -mt-8 -mr-8 w-32 h-32 bg-pink-100 rounded-full opacity-50 blur-xl pointer-events-none"></div>
+                        <div className="absolute bottom-0 left-0 -mb-8 -ml-8 w-32 h-32 bg-yellow-100 rounded-full opacity-50 blur-xl pointer-events-none"></div>
+                        
+                        <div className="relative z-10 text-center">
+                            <div className="inline-block p-4 bg-pink-50 rounded-full text-pink-500 mb-4 shadow-sm">
+                                {coupon.secret && !isRedeemed ? <Icons.Lock size={48} /> : <Icons.Gift size={48} />}
+                            </div>
+                            
+                            <h3 className="text-2xl font-bold text-gray-800 mb-2 font-serif">{coupon.title}</h3>
+                            
+                            <div className="w-16 h-1 bg-pink-200 mx-auto mb-6 rounded-full"></div>
+                            
+                            <div className="bg-pink-50/50 rounded-xl p-6 mb-8 border border-pink-100 text-left">
+                                <h4 className="text-sm font-bold text-pink-400 uppercase tracking-wider mb-2">
+                                    {showContent ? "What's included:" : "Locked Content"}
+                                </h4>
+                                <p className="text-gray-700 leading-relaxed font-medium">
+                                    {displayDetails}
+                                </p>
+                                
+                                {/* QR Code Display for Secret Coupons */}
+                                {showContent && coupon.qrCode && (
+                                    <div className="mt-6 flex flex-col items-center qr-reveal">
+                                        <div className="p-4 bg-white border-2 border-pink-200 rounded-xl shadow-md">
+                                            <img src={coupon.qrCode} alt="QR Code" className="w-40 h-40 object-contain" />
+                                        </div>
+                                        <p className="text-xs text-gray-500 mt-2">Scan to claim!</p>
+                                    </div>
+                                )}
+                            </div>
+
+                            <div className="flex gap-3 justify-center">
+                                <button 
+                                    onClick={onClose}
+                                    className="px-6 py-3 text-gray-500 hover:bg-gray-100 rounded-xl transition-colors font-medium"
+                                >
+                                    Close
+                                </button>
+                                {!isRedeemed && (
+                                    <button 
+                                        onClick={isButtonDisabled ? null : onRedeem}
+                                        className={buttonClass}
+                                        disabled={isButtonDisabled}
+                                    >
+                                        <Icons.Heart size={20} fill="currentColor" /> {buttonText}
+                                    </button>
+                                )}
+                                {isRedeemed && (
+                                    <div className="px-6 py-3 bg-gray-100 text-gray-400 rounded-xl font-bold border border-gray-200 cursor-not-allowed">
+                                        Already Redeemed
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
 
         // --- MAIN APP ---
         function App() {
@@ -242,8 +545,33 @@
             );
         }
 
+        // --- NAVIGATION COMPONENT ---
+        function Nav({ currentPage, setCurrentPage }) {
+            const navButtonClasses = (page) =>
+                `py-2 px-4 rounded-full transition-all duration-300 flex items-center gap-2 ${
+                    currentPage === page
+                        ? 'bg-pink-500 text-white shadow-lg'
+                        : 'bg-white/80 hover:bg-pink-100 text-pink-500'
+                }`;
+
+            return (
+                <nav className="fixed top-4 left-1/2 -translate-x-1/2 bg-white/70 backdrop-blur-md p-2 rounded-full shadow-xl z-50 flex flex-wrap justify-center gap-2">
+                    <button onClick={() => setCurrentPage('home')} className={navButtonClasses('home')}>
+                        <Icons.Home size={18} /> Our Story
+                    </button>
+                    <button onClick={() => setCurrentPage('surprises')} className={navButtonClasses('surprises')}>
+                        <Icons.Gift size={18} /> More Surprises
+                    </button>
+                    <button onClick={() => setCurrentPage('jar')} className={navButtonClasses('jar')}>
+                        <Icons.Jar size={18} /> Reminder Jar
+                    </button>
+                </nav>
+            );
+        }
+
         // --- MAIN PAGE ---
         function MainPage() {
+            const [currentPage, setCurrentPage] = useState('home');
             const [timeTogether, setTimeTogether] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
 
             useEffect(() => {
@@ -263,81 +591,337 @@
 
             return (
                 <div className="container mx-auto px-4 py-12 min-h-screen overflow-y-auto">
-                    <div className="max-w-4xl mx-auto space-y-16 fade-in pb-20">
+                    <Nav currentPage={currentPage} setCurrentPage={setCurrentPage} />
+                    
+                    {currentPage === 'home' && <HomePageContent timeTogether={timeTogether} />}
+                    {currentPage === 'surprises' && <SurprisePageContent />}
+                    {currentPage === 'jar' && <ReminderJarPageContent />}
+                </div>
+            );
+        }
+        
+        // --- HOME PAGE CONTENT ---
+        function HomePageContent({ timeTogether }) {
+            return (
+                <div className="max-w-4xl mx-auto space-y-16 fade-in pb-20 pt-16">
+                    {/* HEADER */}
+                    <header className="text-center space-y-4">
+                        <div className="inline-block p-3 bg-pink-100 rounded-full text-pink-500 mb-4 animate-bounce">
+                            <Icons.Stars size={32} />
+                        </div>
+                        <h1 className="text-4xl md:text-6xl font-bold text-pink-600 font-serif leading-tight">
+                            {CONFIG.greeting}
+                        </h1>
+                        <p className="text-xl text-pink-400">{CONFIG.welcomeMsg}</p>
+                    </header>
 
-                        {/* HEADER */}
-                        <header className="text-center space-y-4 pt-10">
-                            <div className="inline-block p-3 bg-pink-100 rounded-full text-pink-500 mb-4 animate-bounce">
-                                <Icons.Stars size={32} />
-                            </div>
-                            <h1 className="text-4xl md:text-6xl font-bold text-pink-600 font-serif leading-tight">
-                                {CONFIG.greeting}
-                            </h1>
-                            <p className="text-xl text-pink-400">{CONFIG.welcomeMsg}</p>
-                        </header>
+                    {/* TIMER */}
+                    <Section title="Time Since We Officially Started" icon={<Icons.Clock className="text-pink-500" />}>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                            <TimeBox value={timeTogether.days} label="Days" />
+                            <TimeBox value={timeTogether.hours} label="Hours" />
+                            <TimeBox value={timeTogether.minutes} label="Minutes" />
+                            <TimeBox value={timeTogether.seconds} label="Seconds" />
+                        </div>
+                    </Section>
 
-                        {/* TIMER */}
-                        <Section title="Time Since We Officially Started" icon={<Icons.Clock className="text-pink-500" />}>
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-                                <TimeBox value={timeTogether.days} label="Days" />
-                                <TimeBox value={timeTogether.hours} label="Hours" />
-                                <TimeBox value={timeTogether.minutes} label="Minutes" />
-                                <TimeBox value={timeTogether.seconds} label="Seconds" />
-                            </div>
-                        </Section>
+                    {/* LETTER */}
+                    <Section>
+                        <div className="prose max-w-none font-serif">
+                            <h2 className="text-3xl text-pink-600 mb-6">{CONFIG.letterTitle}</h2>
+                            <p className="text-lg text-gray-700 leading-relaxed whitespace-pre-wrap mb-8">{CONFIG.letterBody}</p>
+                            <p className="text-xl font-bold text-pink-500 text-right font-handwriting">
+                                {CONFIG.loveNote}
+                            </p>
+                        </div>
+                    </Section>
 
-                        {/* LETTER */}
-                        <Section>
-                            <div className="prose max-w-none font-serif">
-                                <h2 className="text-3xl text-pink-600 mb-6">{CONFIG.letterTitle}</h2>
-                                <p className="text-lg text-gray-700 leading-relaxed whitespace-pre-wrap mb-8">{CONFIG.letterBody}</p>
-                                <p className="text-xl font-bold text-pink-500 text-right font-handwriting">
-                                    {CONFIG.loveNote}
-                                </p>
-                            </div>
-                        </Section>
+                    {/* REASONS CARDS */}
+                    <Section title="Reasons Why I Love You" icon={<Icons.Heart className="text-red-500" fill="currentColor" />}>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                            {CONFIG.reasons.map((reason, index) => (
+                                <FlipCard key={index} front={`Reason #${index + 1}`} back={reason} />
+                            ))}
+                        </div>
+                    </Section>
 
-                        {/* REASONS CARDS */}
-                        <Section title="Reasons Why I Love You" icon={<Icons.Heart className="text-red-500" fill="currentColor" />}>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                                {CONFIG.reasons.map((reason, index) => (
-                                    <FlipCard key={index} front={`Reason #${index + 1}`} back={reason} />
-                                ))}
-                            </div>
-                        </Section>
+                    {/* TIMELINE */}
+                    <Section title="Our LDR Journey" icon={<Icons.Calendar className="text-pink-500" />}>
+                        <div className="relative border-l-4 border-pink-200 ml-3 pl-8 space-y-8">
+                            {CONFIG.timeline.map((item, index) => (
+                                <div key={index} className="relative">
+                                    <div className="absolute -left-[42px] bg-pink-500 w-6 h-6 rounded-full border-4 border-white shadow-sm"></div>
+                                    <div className="bg-pink-50 p-4 rounded-xl shadow-sm">
+                                        <span className="text-sm font-bold text-pink-400">{item.date}</span>
+                                        <h3 className="text-xl font-bold text-gray-800 mt-1">{item.title}</h3>
+                                        <p className="text-gray-600 mt-2">{item.description}</p>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </Section>
 
-                        {/* TIMELINE */}
-                        <Section title="Our LDR Journey" icon={<Icons.Calendar className="text-pink-500" />}>
-                            <div className="relative border-l-4 border-pink-200 ml-3 pl-8 space-y-8">
-                                {CONFIG.timeline.map((item, index) => (
-                                    <div key={index} className="relative">
-                                        <div className="absolute -left-[42px] bg-pink-500 w-6 h-6 rounded-full border-4 border-white shadow-sm"></div>
-                                        <div className="bg-pink-50 p-4 rounded-xl shadow-sm">
-                                            <span className="text-sm font-bold text-pink-400">{item.date}</span>
-                                            <h3 className="text-xl font-bold text-gray-800 mt-1">{item.title}</h3>
-                                            <p className="text-gray-600 mt-2">{item.description}</p>
+                    {/* FUTURE ADVENTURES */}
+                    <Section title="Our Future Adventures" icon={<Icons.MapPin className="text-pink-500" />}>
+                        <ul className="space-y-3">
+                            {CONFIG.futureAdventures.map((adventure, index) => (
+                                <li key={index} className="flex items-center gap-3 bg-pink-50 p-4 rounded-xl shadow-sm border border-pink-100">
+                                    <Icons.Heart className="text-pink-400" size={20} fill="currentColor" />
+                                    <span className="text-gray-700 font-medium">{adventure}</span>
+                                </li>
+                            ))}
+                        </ul>
+                    </Section>
+
+                    {/* GALLERY (FLIPPING CARDS - GRID STYLE) */}
+                    <Section title="Our Memories" icon={<Icons.Image className="text-pink-500" />}>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                            {CONFIG.galleryImages.map((src, index) => (
+                                <FlipCardImage 
+                                    key={index} 
+                                    src={src} 
+                                    caption={CONFIG.galleryCaptions[index] || "A special memory."} 
+                                />
+                            ))}
+                        </div>
+                    </Section>
+
+                    <footer className="text-center text-pink-300 text-sm opacity-80">
+                        Made with ❤️ by Cole for Kath
+                    </footer>
+                </div>
+            );
+        }
+
+        // --- SURPRISE PAGE CONTENT (UPDATED: ON-DEMAND FETCHING) ---
+        function SurprisePageContent() {
+            const [redeemed, setRedeemed] = useState([]);
+            const [detailsOpen, setDetailsOpen] = useState(false);
+            const [confirmOpen, setConfirmOpen] = useState(false);
+            const [selectedCouponIndex, setSelectedCouponIndex] = useState(null);
+            const [surprises, setSurprises] = useState(CONFIG.surprises);
+
+            useEffect(() => {
+                // Load redeemed coupons from local storage
+                const saved = localStorage.getItem('anniversary_coupons_redeemed');
+                if (saved) {
+                    setRedeemed(JSON.parse(saved));
+                }
+            }, []);
+
+            // FETCH FUNCTION
+            const fetchShoppingLink = (index) => {
+                if (CONFIG.sheetDbUrl && CONFIG.sheetDbUrl !== "YOUR_SHEETDB_API_URL_HERE") {
+                     // Set checking state
+                     setSurprises(prev => {
+                        const newArr = [...prev];
+                        newArr[index] = { ...newArr[index], isChecking: true };
+                        return newArr;
+                    });
+
+                     fetch(`${CONFIG.sheetDbUrl}?sheet=gift`)
+                        .then(res => res.json())
+                        .then(data => {
+                            const link = data[0]?.link;
+                            setSurprises(prev => {
+                                const newArr = [...prev];
+                                newArr[index] = {
+                                    ...newArr[index],
+                                    qrCode: link ? `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(link)}` : null,
+                                    linkAvailable: !!link, // true if link exists, false otherwise
+                                    isChecking: false
+                                };
+                                return newArr;
+                            });
+                        })
+                        .catch(err => {
+                             console.error("Fetch error:", err);
+                             setSurprises(prev => {
+                                const newArr = [...prev];
+                                newArr[index] = { ...newArr[index], linkAvailable: false, isChecking: false };
+                                return newArr;
+                            });
+                        });
+                } else {
+                    // No API configured or placeholder
+                    setSurprises(prev => {
+                        const newArr = [...prev];
+                        newArr[index] = { ...newArr[index], linkAvailable: false, isChecking: false };
+                        return newArr;
+                    });
+                }
+            };
+
+            const handleCouponClick = (index) => {
+                setSelectedCouponIndex(index);
+                setDetailsOpen(true);
+
+                // Trigger fetch ONLY when clicking the Shopping Pass
+                if (surprises[index].title === "Guilt-Free Shopping Pass") {
+                    fetchShoppingLink(index);
+                }
+            };
+
+            const initiateRedeem = () => {
+                setDetailsOpen(false); // Close details first
+                setConfirmOpen(true); // Open confirmation
+            };
+
+            const confirmRedeem = () => {
+                if (selectedCouponIndex !== null) {
+                    const newRedeemed = [...redeemed, selectedCouponIndex];
+                    setRedeemed(newRedeemed);
+                    localStorage.setItem('anniversary_coupons_redeemed', JSON.stringify(newRedeemed));
+                }
+                setConfirmOpen(false);
+                setSelectedCouponIndex(null);
+            };
+            
+            const closeAll = () => {
+                setDetailsOpen(false);
+                setConfirmOpen(false);
+                setSelectedCouponIndex(null);
+            };
+
+            return (
+                <div className="max-w-4xl mx-auto space-y-16 fade-in pb-20 pt-16">
+                     <header className="text-center space-y-4">
+                        <div className="inline-block p-3 bg-pink-100 rounded-full text-pink-500 mb-4 animate-bounce">
+                            <Icons.Gift size={32} />
+                        </div>
+                        <h1 className="text-4xl md:text-6xl font-bold text-pink-600 font-serif leading-tight">
+                            A Book of Love Coupons
+                        </h1>
+                        <p className="text-xl text-pink-400">Click a coupon to view details and redeem!</p>
+                    </header>
+                    
+                    <Section>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                            {surprises.map((coupon, index) => {
+                                const isRedeemed = redeemed.includes(index);
+                                const showDescription = !coupon.secret || isRedeemed;
+                                const displayDescription = showDescription ? coupon.description : "Redeem to reveal details...";
+
+                                return (
+                                    <div 
+                                        key={index} 
+                                        className={`coupon relative overflow-hidden cursor-pointer ${isRedeemed ? 'bg-gray-100 border-gray-300 redeemed' : 'bg-white border-pink-400'}`}
+                                        onClick={() => handleCouponClick(index)}
+                                        style={{ border: isRedeemed ? '2px dashed #d1d5db' : '2px dashed #f472b6' }}
+                                    >
+                                        <div className={`mb-3 transition-colors ${isRedeemed ? 'text-gray-300' : 'text-pink-500 opacity-70'}`}>
+                                            {coupon.secret && !isRedeemed ? (
+                                                <Icons.Lock size={36} />
+                                            ) : (
+                                                <Icons.Heart size={36} fill={isRedeemed ? "none" : "currentColor"} />
+                                            )}
                                         </div>
+                                        <h3 className={`text-lg font-bold mb-2 transition-colors ${isRedeemed ? 'text-gray-400 line-through' : 'text-gray-800'}`}>{coupon.title}</h3>
+                                        <p className={`text-sm transition-colors ${isRedeemed ? 'text-gray-400' : 'text-gray-600'}`}>
+                                            {displayDescription}
+                                        </p>
+                                        
+                                        <span className={`text-xs font-semibold uppercase mt-4 transition-colors ${isRedeemed ? 'text-gray-400' : 'text-pink-300'}`}>
+                                            {isRedeemed ? "Redeemed" : (coupon.secret ? "Click to Unlock" : "Click for Details")}
+                                        </span>
+
+                                        {/* Redeemed Stamp */}
+                                        {isRedeemed && (
+                                            <div className="absolute inset-0 flex items-center justify-center pointer-events-none stamp-animation">
+                                                <div className="border-4 border-red-500 text-red-500 font-bold text-2xl p-2 rounded transform -rotate-12 opacity-50">
+                                                    REDEEMED
+                                                </div>
+                                            </div>
+                                        )}
                                     </div>
-                                ))}
-                            </div>
-                        </Section>
+                                );
+                            })}
+                        </div>
+                    </Section>
 
-                        {/* GALLERY */}
-                        <Section title="Our Memories" icon={<Icons.Image className="text-pink-500" />}>
-                            <div className="columns-1 sm:columns-2 md:columns-3 gap-4 space-y-4">
-                                {CONFIG.galleryImages.map((src, index) => (
-                                    <div key={index} className="break-inside-avoid rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
-                                        <img src={src} alt="Us" className="w-full h-auto object-cover" loading="lazy" />
-                                    </div>
-                                ))}
-                            </div>
-                        </Section>
+                    {/* Modal for Coupon Details */}
+                    <CouponDetailsModal 
+                        isOpen={detailsOpen}
+                        onClose={closeAll}
+                        onRedeem={initiateRedeem}
+                        coupon={selectedCouponIndex !== null ? surprises[selectedCouponIndex] : null}
+                        isRedeemed={selectedCouponIndex !== null ? redeemed.includes(selectedCouponIndex) : false}
+                    />
 
-                        <footer className="text-center text-pink-300 text-sm opacity-80">
-                            Made with ❤️ by Cole for Kath
-                        </footer>
+                    {/* Modal for Confirmation */}
+                    <ConfirmationModal 
+                        isOpen={confirmOpen}
+                        onClose={closeAll}
+                        onConfirm={confirmRedeem}
+                        title="Redeem Coupon?"
+                        message={selectedCouponIndex !== null ? `Are you sure you want to redeem "${surprises[selectedCouponIndex].title}"? This can't be undone!` : ""}
+                    />
+                    
+                     <footer className="text-center text-pink-300 text-sm opacity-80">
+                        ...because you deserve all the love in the world.
+                    </footer>
+                </div>
+            );
+        }
+        
+        // --- REMINDER JAR PAGE CONTENT ---
+        function ReminderJarPageContent() {
+            const [currentNote, setCurrentNote] = useState(null);
+            const [isShaking, setIsShaking] = useState(false);
 
-                    </div>
+            const getRandomNote = () => {
+                setIsShaking(true);
+                const randomIndex = Math.floor(Math.random() * CONFIG.secretNotes.length);
+                let note = CONFIG.secretNotes[randomIndex];
+
+                if (note === currentNote) {
+                     note = CONFIG.secretNotes[(randomIndex + 1) % CONFIG.secretNotes.length];
+                }
+                
+                setTimeout(() => {
+                    setCurrentNote(note);
+                    setIsShaking(false);
+                }, 500);
+            };
+            
+            return (
+                <div className="max-w-4xl mx-auto space-y-12 fade-in pb-20 pt-16">
+                     <header className="text-center space-y-4">
+                        <div className="inline-block p-3 bg-pink-100 rounded-full text-pink-500 mb-4">
+                            <Icons.Jar size={32} />
+                        </div>
+                        <h1 className="text-4xl md:text-6xl font-bold text-pink-600 font-serif leading-tight">
+                            Our Reminder Jar
+                        </h1>
+                        <p className="text-xl text-pink-400">Click the jar to pull out a random reminder of my love.</p>
+                    </header>
+                    
+                    <Section>
+                        <div className="flex flex-col items-center gap-8 min-h-[300px]">
+                            {/* The Jar Button */}
+                            <button 
+                                onClick={getRandomNote} 
+                                className={`group transition-all duration-300 transform hover:scale-105 ${isShaking ? 'shake-animation' : ''} flex flex-col items-center`}
+                                disabled={isShaking}
+                            >
+                                <Icons.Jar size={200} strokeWidth={1} className="text-pink-300 group-hover:text-pink-400 transition-colors drop-shadow-lg" />
+                                <span className="block text-lg font-semibold text-gray-600 group-hover:text-gray-800 transition-colors mt-2 text-center">
+                                    {isShaking ? "Shaking..." : "Click me!"}
+                                </span>
+                            </button>
+                            
+                            {/* The Note Display */}
+                            {currentNote && (
+                                <div className="bg-yellow-50 rounded-lg p-6 text-gray-700 text-center font-serif text-xl shadow-xl border-2 border-yellow-200 max-w-md w-full fade-in transform -rotate-2 hover:rotate-0 transition-transform duration-300">
+                                    {currentNote}
+                                </div>
+                            )}
+                        </div>
+                    </Section>
+                    
+                     <footer className="text-center text-pink-300 text-sm opacity-80">
+                        Just a few of the million thoughts I have about you.
+                    </footer>
                 </div>
             );
         }
@@ -389,6 +973,29 @@
             );
         }
 
+        // Flipping Image Card Component (Updated for Gallery Grid)
+        function FlipCardImage({ src, caption }) {
+            const [isFlipped, setIsFlipped] = useState(false);
+
+            return (
+                <div 
+                    className="cursor-pointer perspective-1000 h-64 md:h-80" 
+                    onClick={() => setIsFlipped(!isFlipped)}
+                >
+                    <div className={`relative w-full h-full transition-transform duration-700 transform-style-3d ${isFlipped ? 'rotate-y-180' : ''}`}>
+                        {/* Front (Image) */}
+                        <div className="absolute w-full h-full backface-hidden shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 rounded-xl overflow-hidden">
+                            <img src={src} alt="Us" className="w-full h-full object-cover" loading="lazy" />
+                        </div>
+                        {/* Back (Caption) */}
+                        <div className="absolute w-full h-full bg-white rounded-xl flex items-center justify-center p-4 text-pink-600 text-center font-medium border-2 border-pink-500 rotate-y-180 backface-hidden shadow-lg overflow-y-auto">
+                            <p>{caption}</p>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+        
         // --- RENDER APP ---
         const root = ReactDOM.createRoot(document.getElementById('root'));
         root.render(<App />);
